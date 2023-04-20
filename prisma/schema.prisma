@@ -9,3 +9,138 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id              Int        @id @default(autoincrement())
+  name            String     @unique
+  email           String?
+  password        String
+  shippingAddress String
+  billingAddress  String
+  paymentMethod   String[]
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  Order           Order[]
+  Cart            Cart[]
+  Wishlist        Wishlist[]
+  Review          Review[]
+}
+
+model Company {
+  id           Int       @id @default(autoincrement())
+  name         String    @unique
+  address      String
+  contactName  String
+  contactEmail String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  Product      Product[]
+}
+
+model Category {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  Product Product[]
+}
+
+model Product {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  description   String
+  price         Float
+  quantity      Int
+  imageURL      String
+  companyId     Int
+  company       Company         @relation(fields: [companyId], references: [id])
+  categoryId    Int
+  category      Category        @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  Order_Item    Order_Item[]
+  Cart_Item     Cart_Item[]
+  Wishlist_Item Wishlist_Item[]
+  Review        Review[]
+}
+
+model Order {
+  id              Int          @id @default(autoincrement())
+  userId          Int
+  user            User         @relation(fields: [userId], references: [id])
+  totalAmount     Float
+  shippingAddress String
+  billingAddress  String
+  paymentMethod   String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  Order_Item      Order_Item[]
+}
+
+model Order_Item {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Cart {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Cart_Item Cart_Item[]
+}
+
+model Cart_Item {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Wishlist {
+  id            Int             @id @default(autoincrement())
+  userId        Int
+  user          User            @relation(fields: [userId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  Wishlist_Item Wishlist_Item[]
+}
+
+model Wishlist_Item {
+  id         Int      @id @default(autoincrement())
+  wishlistId Int
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id])
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+  text      String
+  rating    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
